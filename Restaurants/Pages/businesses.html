@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Scripts/jquery-3.3.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+
+        td {
+            width: 300px;
+            font-size: 20px;
+        }
+
+        img {
+            height: 236px;
+            width: 304px;
+        }
+        #rs,#ph,#start {
+            text-align: center;
+        }
+        body {
+            background-image: url('../photos/avocado.jpg');
+            background-color: lightgoldenrodyellow;
+        }
+        .card {
+            margin: auto;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 40%;
+            background-color: lightgoldenrodyellow;
+        }
+        button{
+            background-color:sandybrown;
+        }
+        select {
+            background-color: sandybrown;
+        }
+
+    </style>
+    <script src="../Scripts/ajaxCallsWithKey.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            console.log("ready!");
+            $("#city").change(function () {
+                $("#ph").css("display", "block");
+            });
+            $("#cuisine").change(getCuisines);
+
+            $(document).on("click", ".addFav", postBusinesses);
+        });
+
+
+        function getCuisines() {
+            let cityVal = $("#city").val();
+            let cuisinesVal = $("#cuisine").val();
+            let api = "https://developers.zomato.com/api/v2.1/search?entity_id=" + cityVal + " & entity_type=city& cuisines=" + cuisinesVal;
+            ajaxCall("GET", api, "", getSuccess, getError);
+        }
+
+        function getSuccess(data) {
+            console.log(data);
+            Data = data;
+            $("#rs").empty();
+            $("#rs").html("");
+
+            rest = "<div class='card'>";
+            for (var i = 0; i < Data.restaurants.length; i++) {
+
+                rest += "<div><p>Id : " + Data.restaurants[i].restaurant.id + "<p>";
+                rest += "<img src=' " + Data.restaurants[i].restaurant.featured_image + "'class='rounded-circle'/>";
+                rest += "<div><p>Name : " + Data.restaurants[i].restaurant.name + "<p>";
+                rest += "<div><p>Rating : " + Data.restaurants[i].restaurant.user_rating.aggregate_rating + "<p>";
+                rest += "<div><p>Cuisines : " + Data.restaurants[i].restaurant.cuisines + "<p>";
+                rest += "<div><p>Address : " + Data.restaurants[i].restaurant.location.address + "<p>";
+                rest += "<div><p>Phon_numbers : " + Data.restaurants[i].restaurant.phon_numbers + "<p>";
+                rest += "<button id='" + i + "'class='addFav'>Add to favorites</button></div>";
+
+            }
+            rest += "</div>";
+            $("#rs").append(rest);
+        }
+        function getError(err) {
+            console.log(err);
+        }
+
+        function postBusinesses() {
+            console.log("in postBusinesses");
+            let bt = $(this).attr('id');
+            console.log(bt);
+            //get the values from the input fields
+            let _id = Data.restaurants[bt].restaurant.id;
+            let _photo = Data.restaurants[bt].restaurant.featured_image;
+            let _name = Data.restaurants[bt].restaurant.name;
+            let _aggeegate_rating = Data.restaurants[bt].restaurant.user_rating.aggregate_rating;
+            let _cuisines = Data.restaurants[bt].restaurant.cuisines;
+            let _price_range = Data.restaurants[bt].restaurant.price_range;
+            let _address = Data.restaurants[bt].restaurant.location.address;
+            let _phon_numbers = Data.restaurants[bt].restaurant.phon_numbers;
+
+            let businesses = { //Note that the field name must match the c# class properties
+                Id: _id,
+                Photo: _photo,
+                Name: _name,
+                Aggregate_rating: _aggeegate_rating,
+                Cuisines: _cuisines,
+                Price_range: _price_range,
+                Address: _address,
+                Phon_numbers: _phon_numbers
+            }
+            console.log(businesses);
+            ajaxCall("POST", "../api/Businesses", JSON.stringify(businesses), postSuccess, postError);
+        }
+
+        function postSuccess(data) {
+            console.log(data);
+            swal("Added Successfuly!", "Great Job", "success");
+        }
+        function postError(err) {
+            console.log(err);
+            alert(err.responseJSON.ExceptionMessage);
+        }
+
+    </script>
+
+</head>
+<body>
+    <div id="start">
+        <table>
+            <tr>
+                <td>
+                    <select id="city" name="city">
+                        <option>Choose a City</option>
+                        <option value="280">NYC</option>
+                        <option value="281">LA</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="goToFav" onclick="document.location='favorites.html'">Go to favorites</button>
+                </td>
+                <td>
+                    <button id="register" onclick="document.location='registration.html'">Register</button> 
+                </td>
+
+                
+            </tr>
+        </table>
+    </div>
+    <div id="ph" style="display:none">
+        <select id="cuisine" name="cuisine">
+            <option>Choose cuisine type:</option>
+            <option value="148">Indian</option>
+            <option value="3">Asian</option>
+            <option value="182">Breakfast</option>
+            <option value="38">European</option>
+            <option value="25">Chinese</option>
+            <option value="1">American</option>
+        </select>     
+    </div>
+    <div id="rs"></div>
+
+
+
+
+
+</body>
+</html>

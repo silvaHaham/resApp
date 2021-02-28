@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Scripts/jquery-3.3.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+
+        td {
+            width: 300px;
+            font-size: 20px;
+        }
+
+        img {
+            height: 236px;
+            width: 304px;
+        }
+        .card {
+            margin: auto;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 40%;
+            background-color: lightgoldenrodyellow;
+        }
+        body {
+            background-image: url('../photos/avocado.jpg');
+            background-color: lightgoldenrodyellow;
+        }
+        button {
+            background-color: sandybrown;
+        }
+        #myFav{
+            text-align: center;
+        }
+    </style>
+    <script src="../Scripts/ajaxCallsWithKey.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Hey!");
+            $("#showFav").click(getFavorites);
+        });
+
+        function getFavorites() {
+            console.log("hey!");
+            ajaxCall("GET", "../api/Businesses", "", getSuccess, getError);
+        }
+        function getSuccess(businesses) {
+            console.log(businesses);
+            Busin = businesses;
+            $("#myFav").empty();
+            $("#myFav").html("");
+            //let st = "";
+            let st="<div class='card'>";
+            for (var i = 0; i < Busin.length; i++) {
+                st += "<div>";
+                st += "<div><p>ID: " + Busin[i].Id + "</p>";
+                st += "<img src=' " + Busin[i].Photo + "'class='rounded-circle'/>";
+                st += "<p>Name: " + Busin[i].Name + "</p>";
+                st += "<p>Rating: " + Busin[i].Rating + "</p>";
+                st += "<p>Category: " + Busin[i].Category + "</p>";
+                st += "<p>Price Range: " + Busin[i].PriceRange + "</p>";
+                st += "<p>Address: " + Busin[i].Address + "</p>";
+                st += "<p>Phone: " + Busin[i].Phon + "</p>";
+                st += "</div>";
+            }
+            st += "</div>";
+            $("#myFav").append(st);
+        }
+        function getError(err) {
+            console.log(err);
+        }
+
+    </script>
+</head>
+<body>
+    <button id="showFav">Show favorites</button>
+    <button id="backTo" onclick="document.location='businesses.html'" type="button">Back to Page</button>
+    <div id="myFav"></div>
+</body>
+</html>
